@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 from pathlib import Path
-import base64
 
 def get_pdf_files():
     """Get list of PDF files from the allpdfs directory."""
@@ -14,21 +13,18 @@ def get_pdf_files():
     return [pdf.name for pdf in pdf_files]
 
 def display_pdf(pdf_file):
-    """Display the selected PDF file."""
+    """Display the selected PDF file using Streamlit's native PDF display."""
     try:
         with open(os.path.join("allpdfs", pdf_file), "rb") as f:
-            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        
-        # Embed PDF viewer
-        pdf_display = f"""
-            <iframe
-                src="data:application/pdf;base64,{base64_pdf}"
-                width="100%"
-                height="800"
-                type="application/pdf">
-            </iframe>
-        """
-        st.markdown(pdf_display, unsafe_allow_html=True)
+            pdf_bytes = f.read()
+        st.download_button(
+            label="Download PDF",
+            data=pdf_bytes,
+            file_name=pdf_file,
+            mime="application/pdf"
+        )
+        st.write("PDF Preview:")
+        st.pdf(pdf_bytes)
     except Exception as e:
         st.error(f"Error displaying PDF: {str(e)}")
 
